@@ -5,7 +5,11 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+      // `server-only` throws when imported outside Next.js' server bundles.
+      "server-only": fileURLToPath(new URL("./tests/mocks/server-only.ts", import.meta.url)),
+    },
   },
   test: {
     environment: "jsdom",

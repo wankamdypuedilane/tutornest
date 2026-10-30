@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { AuthButton } from "@/components/auth/auth-button";
 import { Logo } from "@/components/brand/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -25,6 +27,9 @@ export function SiteHeader() {
             </Link>
           ))}
           <ThemeToggle />
+          <Suspense fallback={<div className="h-8 w-20" />}>
+            <AuthButton />
+          </Suspense>
         </nav>
       </div>
     </header>
