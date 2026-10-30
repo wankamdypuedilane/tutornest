@@ -35,6 +35,7 @@ export type Profile = {
   full_name: string;
   role: "learner" | "mentor" | "admin";
   mentor_status: "none" | "pending" | "approved";
+  avatar_path: string | null;
 };
 
 /** The current user's profile. Row Level Security guarantees it is their own row. */
@@ -44,7 +45,7 @@ export const getProfile = cache(async (): Promise<Profile | null> => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("profiles")
-    .select("id, full_name, role, mentor_status")
+    .select("id, full_name, role, mentor_status, avatar_path")
     .eq("id", user.id)
     .single<Profile>();
   return data ?? null;

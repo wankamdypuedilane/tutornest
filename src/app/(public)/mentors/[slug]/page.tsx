@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { UserAvatar } from "@/components/profile/user-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -34,9 +35,12 @@ async function MentorDetails({ params }: { params: PageProps<"/mentors/[slug]">[
 
   return (
     <article className="space-y-6">
-      <header className="space-y-2">
-        <h1 className="text-4xl font-semibold">{mentor.display_name}</h1>
-        <p className="text-lg text-muted-foreground">{mentor.headline}</p>
+      <header className="flex items-center gap-5">
+        <UserAvatar name={mentor.display_name} path={mentor.avatar_path} className="size-20" />
+        <div className="space-y-2">
+          <h1 className="text-4xl font-semibold">{mentor.display_name}</h1>
+          <p className="text-lg text-muted-foreground">{mentor.headline}</p>
+        </div>
       </header>
       <section aria-labelledby="skills-heading" className="space-y-2">
         <h2 id="skills-heading" className="text-sm font-semibold uppercase tracking-wide">Skills</h2>

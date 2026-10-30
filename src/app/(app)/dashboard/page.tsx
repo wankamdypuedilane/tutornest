@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getProfile, requireUser } from "@/lib/auth/current-user";
@@ -31,6 +32,11 @@ async function Welcome() {
           <Badge variant="warning">Mentor application under review</Badge>
         )}
       </div>
+      {profile?.mentor_status === "approved" && (
+        <Link href="/mentor/profile" className="inline-block text-primary underline underline-offset-4">
+          Edit your public mentor profile
+        </Link>
+      )}
     </section>
   );
 }

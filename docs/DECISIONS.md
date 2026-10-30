@@ -25,3 +25,9 @@ future contributors (human or AI) understand why the code looks the way it does.
 
 ## ADR-005 Test strategy
 - Decision: Vitest + Testing Library for units and components; Playwright for end-to-end flows against a production build; SQL tests for Row Level Security policies.
+
+## 2026-11-05: Avatars in a public bucket, one folder per user
+- Bucket `avatars` is public (photos are shown to visitors); writes are restricted by storage policies to `<user-id>/...`.
+- File type is detected from the bytes, never from the name or the browser-provided type. SVG is refused.
+- A new object name per upload (no overwrite) so CDN and browser caches never serve a stale photo.
+- Uploads go through a Server Action (limit raised to 3 MB); direct browser uploads are an option if files grow.

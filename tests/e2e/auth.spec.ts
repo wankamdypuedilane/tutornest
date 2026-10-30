@@ -23,3 +23,8 @@ test("sign-up rejects a short password before contacting Supabase", async ({ pag
   await page.getByRole("button", { name: "Create account" }).click();
   await expect(page.getByText("Use at least 10 characters.")).toBeVisible();
 });
+
+test("the mentor profile editor is private too", async ({ page }) => {
+  await page.goto("/mentor/profile");
+  await expect(page).toHaveURL(/\/sign-in\?next=%2Fmentor%2Fprofile/);
+});

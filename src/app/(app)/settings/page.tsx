@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { AvatarForm } from "@/components/profile/avatar-form";
 import { DeleteAccountDialog } from "@/components/settings/delete-account-dialog";
 import { NotificationSettingsForm } from "@/components/settings/notification-settings-form";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { requireUser } from "@/lib/auth/current-user";
+import { getProfile, requireUser } from "@/lib/auth/current-user";
 import { defaultNotificationSettings, type NotificationSettings } from "@/lib/settings/schemas";
 import { createClient } from "@/lib/supabase/server";
 
@@ -14,6 +15,13 @@ export default function SettingsPage() {
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 space-y-10 px-6 py-12">
       <h1 className="text-3xl font-semibold">Settings</h1>
+      <section aria-labelledby="photo" className="space-y-4">
+        <h2 id="photo" className="text-xl font-semibold">Photo</h2>
+        <Suspense fallback={<Skeleton className="h-20 w-full" />}>
+          <Photo />
+        </Suspense>
+      </section>
+      <Separator />
       <section aria-labelledby="notifications" className="space-y-4">
         <h2 id="notifications" className="text-xl font-semibold">E-mail notifications</h2>
         <Suspense fallback={<Skeleton className="h-60 w-full" />}>
@@ -41,4 +49,10 @@ async function Notifications() {
     .eq("user_id", user.id)
     .maybeSingle<NotificationSettings>();
   return <NotificationSettingsForm initial={data ?? defaultNotificationSettings} />;
+}
+
+async function Photo() {
+  const user = await requireUser("/settings");
+  const profile = await getProfile();
+  return <AvatarForm name={profile?.full_name || user.email || "?"} path={profile?.avatar_path ?? null} />;
 }

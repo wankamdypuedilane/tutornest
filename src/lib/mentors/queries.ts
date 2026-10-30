@@ -9,6 +9,7 @@ export type MentorSummary = {
   headline: string;
   skills: string[];
   languages: string[];
+  avatar_path: string | null;
 };
 
 export type MentorProfile = MentorSummary & { bio: string; timezone: string };
@@ -22,7 +23,7 @@ export async function getPublishedMentors(filters: DirectoryFilters): Promise<Me
   if (!hasSupabaseEnv) return [];
   let query = createPublicClient()
     .from("mentor_profiles")
-    .select("slug, display_name, headline, skills, languages")
+    .select("slug, display_name, headline, skills, languages, avatar_path")
     .eq("is_published", true)
     .order("display_name")
     .limit(50);
@@ -43,7 +44,7 @@ export async function getMentorBySlug(slug: string): Promise<MentorProfile | nul
   if (!hasSupabaseEnv) return null;
   const { data } = await createPublicClient()
     .from("mentor_profiles")
-    .select("slug, display_name, headline, bio, skills, languages, timezone")
+    .select("slug, display_name, headline, bio, skills, languages, timezone, avatar_path")
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle<MentorProfile>();
