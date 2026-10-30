@@ -35,6 +35,23 @@ export async function getPublishedMentors(filters: DirectoryFilters): Promise<Me
   return data;
 }
 
+/** Slugs of all published mentors, for the sitemap. */
+export async function getPublishedMentorSlugs(): Promise<{ slug: string; updated_at: string }[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("mentors");
+
+  if (!hasSupabaseEnv) return [];
+  const { data, error } = await createPublicClient()
+    .from("mentor_profiles")
+    .select("slug, updated_at")
+    .eq("is_published", true)
+    .order("slug")
+    .limit(5000);
+  if (error) throw new Error("Could not load mentors");
+  return data;
+}
+
 /** One published mentor, or null. */
 export async function getMentorBySlug(slug: string): Promise<MentorProfile | null> {
   "use cache";

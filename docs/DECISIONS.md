@@ -60,3 +60,12 @@ future contributors (human or AI) understand why the code looks the way it does.
 - The job uses the secret key (it reads e-mail addresses from auth.users); users cannot call its functions.
 - Times in e-mails use the recipient's zone: the learner's browser zone is stored with the booking.
 - Supabase Auth e-mails (confirmation, password reset) go through Resend's SMTP server in production.
+
+## 2026-11-10: A static landing page, content apart from layout
+- The home page is a Server Component with no request data, prerendered at build time. Its words live in
+  `src/content/landing.ts`; social proof uses facts about the programme, never invented testimonials.
+- SEO through Next.js metadata files: `metadataBase`, page metadata with a canonical URL,
+  `opengraph-image.tsx` (ImageResponse), `sitemap.ts` (with published mentors), `robots.ts`; JSON-LD with `<`
+  escaped.
+- Conversions are measured with Vercel Web Analytics (no cookies) and a `cta_click` custom event per placement.
+- The header hides secondary links below 640 px: an end-to-end test checks that nothing overflows at 375 px.
