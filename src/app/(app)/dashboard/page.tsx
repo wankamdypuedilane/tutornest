@@ -36,6 +36,9 @@ async function Welcome() {
         <Link href="/sessions" className="text-primary underline underline-offset-4">
           Your sessions
         </Link>
+        <Link href="/notifications" className="text-primary underline underline-offset-4">
+          Notifications
+        </Link>
         {profile?.mentor_status === "approved" && (
           <>
             <Link href="/mentor/profile" className="text-primary underline underline-offset-4">

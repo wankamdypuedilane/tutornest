@@ -46,3 +46,15 @@ test.describe("private pages and the token route", () => {
     expect(response.status()).toBe(401);
   });
 });
+
+test.describe("notifications and the scheduled job", () => {
+  test("notifications require an account", async ({ page }) => {
+    await page.goto("/notifications");
+    await expect(page).toHaveURL(/\/sign-in\?next=%2Fnotifications/);
+  });
+
+  test("the job refuses to run without its configuration", async ({ request }) => {
+    const response = await request.get("/api/cron/notifications", { headers: { authorization: "Bearer guess" } });
+    expect(response.status()).toBe(503);
+  });
+});

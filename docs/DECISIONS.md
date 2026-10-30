@@ -48,3 +48,15 @@ future contributors (human or AI) understand why the code looks the way it does.
 - `POST /api/sessions/[bookingId]/token` checks the user, the booking (RLS) and the join window
   (10 minutes before to 15 minutes after), then signs a token for room `session-<bookingId>` only,
   valid until the window closes. The API secret never leaves the server.
+
+## 2026-11-09: Notifications through an outbox, e-mails through Resend
+- A trigger on `bookings` writes one `notifications` row per participant and event in the booking's own
+  transaction (the "transactional outbox"). The row is the in-app notification and the e-mail to send.
+  A unique constraint `(user_id, booking_id, kind)` makes duplicates impossible.
+- E-mails are sent after the response (`after()` in the Server Action) for that booking, and by a scheduled
+  job (`GET /api/cron/notifications`, Bearer `CRON_SECRET`) that queues reminders and retries failures.
+  Workers claim rows with `for update skip locked`; each send uses the notification id as Resend's
+  idempotency key. After 5 attempts the e-mail is marked `failed`.
+- The job uses the secret key (it reads e-mail addresses from auth.users); users cannot call its functions.
+- Times in e-mails use the recipient's zone: the learner's browser zone is stored with the booking.
+- Supabase Auth e-mails (confirmation, password reset) go through Resend's SMTP server in production.

@@ -51,7 +51,8 @@ describe("SlotPicker", () => {
     render(<SlotPicker {...props} viewerTimeZone="America/New_York" onBook={onBook} />);
     await user.click(screen.getAllByRole("radio", { name: "12:00–13:00" })[0]!);
     await user.click(screen.getByRole("button", { name: "Book this session" }));
-    expect(onBook).toHaveBeenCalledWith({ mentorId: props.mentorId, startsAt: "2026-11-17T17:00:00.000Z", minutes: 60 });
+    // The viewer's zone travels with the booking, for the times written in e-mails.
+    expect(onBook).toHaveBeenCalledWith({ mentorId: props.mentorId, startsAt: "2026-11-17T17:00:00.000Z", minutes: 60, timeZone: "America/New_York" });
     await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent("booked by someone else"));
   });
 

@@ -11,13 +11,21 @@ const supabase = {
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => supabase }));
 vi.mock("@/lib/auth/current-user", () => ({ requireUser: async () => ({ id: "learner-1", email: null }) }));
 vi.mock("next/cache", () => ({ refresh: vi.fn() }));
+// after() runs callbacks once the response is sent; here we collect them.
+const afterCallbacks: (() => unknown)[] = [];
+vi.mock("next/server", () => ({ after: (fn: () => unknown) => afterCallbacks.push(fn) }));
+const deliverPendingEmails = vi.fn();
+vi.mock("@/lib/notifications/outbox", () => ({ deliverPendingEmails: (id: string) => deliverPendingEmails(id) }));
 
 const { bookSession, cancelBooking } = await import("@/app/(app)/sessions/actions");
 
 const MENTOR = "3f0c6a51-8d2e-4b7a-9c41-2e5d8f1a7b90";
-const input = { mentorId: MENTOR, startsAt: "2026-11-17T17:00:00.000Z", minutes: 60 as const };
+const input = { mentorId: MENTOR, startsAt: "2026-11-17T17:00:00.000Z", minutes: 60 as const, timeZone: "Europe/London" };
 
-beforeEach(() => vi.clearAllMocks());
+beforeEach(() => {
+  vi.clearAllMocks();
+  afterCallbacks.length = 0;
+});
 
 describe("bookSession", () => {
   it("sends instants for both ends; the database decides the rest", async () => {
@@ -27,7 +35,21 @@ describe("bookSession", () => {
       mentor_id: MENTOR,
       starts_at: "2026-11-17T17:00:00.000Z",
       ends_at: "2026-11-17T18:00:00.000Z",
+      learner_timezone: "Europe/London",
     });
+  });
+
+  it("sends the e-mails after the response, for this booking only", async () => {
+    single.mockResolvedValue({ data: { id: "booking-1" }, error: null });
+    await bookSession(input);
+    expect(deliverPendingEmails).not.toHaveBeenCalled(); // not before the response
+    await Promise.all(afterCallbacks.map((fn) => fn()));
+    expect(deliverPendingEmails).toHaveBeenCalledWith("booking-1");
+  });
+
+  it("refuses an unknown time zone", async () => {
+    expect((await bookSession({ ...input, timeZone: "Mars/Olympus" })).ok).toBe(false);
+    expect(insert).not.toHaveBeenCalled();
   });
 
   it("explains an exclusion violation as a slot taken a moment ago", async () => {

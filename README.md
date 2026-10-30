@@ -30,6 +30,13 @@ The home page works without any configuration, and so do the design previews
 need a Supabase project (see chapter 6 of the book) or the local stack
 (`npx supabase start`, requires Docker).
 
+## Optional services
+
+Video sessions (LiveKit), e-mails (Resend) and the scheduled job (`CRON_SECRET`) are configured with the
+variables documented in `.env.example`. Without them the app runs, and those features say they are not
+configured. Deployed on Vercel, `vercel.json` schedules the job once a day (the Hobby plan limit); on a
+plan that allows it, run it every 10 minutes.
+
 ## Scripts
 
 | Command | What it does |

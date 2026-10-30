@@ -18,6 +18,12 @@ export const serverEnvSchema = z.object({
     .optional(),
   LIVEKIT_API_KEY: z.string().min(1).optional(),
   LIVEKIT_API_SECRET: z.string().min(1).optional(),
+  // E-mail (chapter 16). EMAIL_FROM uses a verified domain: "TutorNest <sessions@send.example.com>".
+  RESEND_API_KEY: z.string().startsWith("re_", "must be a Resend API key (re_...)").optional(),
+  EMAIL_FROM: z.string().regex(/^.+ <[^@\s]+@[^@\s]+>$/, 'must look like "Name <address@domain>"').optional(),
+  // Shared secret of the scheduled job (Vercel Cron sends it as a Bearer token).
+  CRON_SECRET: z.string().min(16, "must be at least 16 random characters").optional(),
+  REMINDER_WINDOW_HOURS: z.coerce.number().int().min(1).max(72).default(24),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;

@@ -28,5 +28,7 @@ Read docs/PRD.md for the product requirements before planning a feature.
 - Store times as timestamptz instants; convert to a time zone only to compute or display. Scheduling
   rules live in pure functions in `src/lib/scheduling/` with tests (including daylight saving time).
 - Never check availability and then insert: insert and let the exclusion constraint decide.
+- Never send e-mails directly from a feature: write a notification row (trigger or insert) and let the
+  outbox worker send it with an idempotency key. Templates live in `src/emails/`.
 - Do not modify tests to make them pass unless the requirement changed; say so explicitly if you do.
 - Keep changes small and focused; propose a plan first for anything touching more than three files.

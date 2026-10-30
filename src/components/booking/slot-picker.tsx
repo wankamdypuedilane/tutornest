@@ -57,7 +57,7 @@ export function SlotPicker(props: SlotPickerProps) {
     event.preventDefault();
     if (!selected) return;
     startTransition(async () => {
-      const outcome = await onBook({ mentorId, startsAt: selected, minutes });
+      const outcome = await onBook({ mentorId, startsAt: selected, minutes, timeZone: viewerTimeZone });
       setResult(outcome);
       if (outcome.ok) setSelected(null);
     });

@@ -234,15 +234,17 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 3600
 
-# Use a production-ready SMTP server
+# Use a production-ready SMTP server. Locally, e-mails go to the built-in test
+# inbox; uncomment to send real ones through Resend (chapter 16). In production,
+# enter the same values in the dashboard: Authentication > Emails > SMTP Settings.
 # [auth.email.smtp]
 # enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+# host = "smtp.resend.com"
+# port = 465
+# user = "resend"
+# pass = "env(RESEND_API_KEY)"
+# admin_email = "accounts@send.your-domain.example"
+# sender_name = "TutorNest"
 
 # TutorNest e-mail templates: links point to our /auth/confirm route
 # with a token hash, so the session is created on the server.
