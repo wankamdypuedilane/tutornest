@@ -1,7 +1,7 @@
 import { signInWithGoogle } from "@/app/(auth)/actions";
 import { Button } from "@/components/ui/button";
 
-// A plain form: works without JavaScript, and the action runs on the server.
+// A plain form posting to a Server Action: no client-side code of its own.
 export function GoogleButton({ next = "/dashboard" }: { next?: string }) {
   return (
     <form action={signInWithGoogle}>
