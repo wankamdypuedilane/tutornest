@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseServerEnv } from "@/lib/env-schema";
+import { parseServerEnv, serverEnvSchema } from "@/lib/env-schema";
 
 describe("parseServerEnv", () => {
   it("accepts a valid configuration and applies defaults", () => {
@@ -19,5 +19,13 @@ describe("parseServerEnv", () => {
     } catch (error) {
       expect(String(error)).not.toContain("oops-real-looking-value");
     }
+  });
+});
+
+describe("LiveKit settings", () => {
+  it("accept LiveKit Cloud and the local development server, not plain ws:// elsewhere", () => {
+    expect(serverEnvSchema.safeParse({ LIVEKIT_URL: "wss://tutornest.livekit.cloud" }).success).toBe(true);
+    expect(serverEnvSchema.safeParse({ LIVEKIT_URL: "ws://localhost:7880" }).success).toBe(true);
+    expect(serverEnvSchema.safeParse({ LIVEKIT_URL: "ws://video.example.com" }).success).toBe(false);
   });
 });

@@ -8,10 +8,16 @@ export const serverEnvSchema = z.object({
     .startsWith("sb_secret_", "must be a Supabase secret key (sb_secret_...)")
     .optional(),
   NEXT_PUBLIC_SITE_URL: z.url().default("http://localhost:3000"),
-  // LiveKit (video sessions). The URL is sent to the browser by the token route.
-  LIVEKIT_URL: z.url().startsWith("wss://", "must be a wss:// URL").optional(),
+  // LiveKit (video sessions). The URL is sent to the browser by the token route:
+  // wss:// in production, ws://localhost:7880 for `livekit-server --dev`.
+  LIVEKIT_URL: z
+    .url()
+    .refine((url) => url.startsWith("wss://") || /^ws:\/\/(localhost|127\.0\.0\.1)(:\d+)?\/?$/.test(url), {
+      message: "must be a wss:// URL (ws:// only for a local server)",
+    })
+    .optional(),
   LIVEKIT_API_KEY: z.string().min(1).optional(),
-  LIVEKIT_API_SECRET: z.string().min(32, "must be the full API secret").optional(),
+  LIVEKIT_API_SECRET: z.string().min(1).optional(),
 });
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
