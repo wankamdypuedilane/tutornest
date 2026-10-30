@@ -17,6 +17,9 @@ const badgeVariants = cva(
           "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         link: "text-primary underline-offset-4 [a&]:hover:underline",
+        // TutorNest additions: status badges built on our semantic tokens
+        success: "bg-success text-success-foreground",
+        warning: "bg-warning text-warning-foreground",
       },
     },
     defaultVariants: {
