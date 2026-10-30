@@ -121,8 +121,9 @@ describe("GET /api/cron/notifications", () => {
   it("queues reminders for the configured window", async () => {
     const response = await call(`Bearer ${SECRET}`);
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({ remindersQueued: 2, delivery: null });
+    expect(await response.json()).toEqual({ remindersQueued: 2, delivery: null, rateLimitWindowsPurged: 2 });
     expect(rpc).toHaveBeenCalledWith("queue_session_reminders", { within: "24 hours" });
+    expect(rpc).toHaveBeenCalledWith("purge_rate_limits");
   });
 
   it("answers 503 when the job is not configured", async () => {

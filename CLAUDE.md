@@ -30,5 +30,9 @@ Read docs/PRD.md for the product requirements before planning a feature.
 - Never check availability and then insert: insert and let the exclusion constraint decide.
 - Never send e-mails directly from a feature: write a notification row (trigger or insert) and let the
   outbox worker send it with an idempotency key. Templates live in `src/emails/`.
+- Security headers live in `src/lib/security/headers.ts`; a new external service must be added to the
+  CSP there, with a test. Never use dangerouslySetInnerHTML with user content.
+- Rate-limit endpoints that cost money or guard secrets (`src/lib/security/rate-limit.ts`).
+- Log with `log()` from `src/lib/log.ts`; never log tokens, cookies, passwords or e-mail addresses.
 - Do not modify tests to make them pass unless the requirement changed; say so explicitly if you do.
 - Keep changes small and focused; propose a plan first for anything touching more than three files.

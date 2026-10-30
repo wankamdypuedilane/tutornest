@@ -30,5 +30,7 @@ export async function GET(request: Request) {
   if (error) return reply({ error: "Could not queue reminders." }, 500);
 
   const delivery = emailConfigured() ? await deliverEmails(createOutboxDeps(admin)) : null;
-  return reply({ remindersQueued: queued, delivery });
+  // Housekeeping: rate-limit windows older than a day (chapter 19).
+  const { data: purged } = await admin.rpc("purge_rate_limits");
+  return reply({ remindersQueued: queued, delivery, rateLimitWindowsPurged: purged ?? 0 });
 }

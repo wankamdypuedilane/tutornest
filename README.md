@@ -37,6 +37,14 @@ variables documented in `.env.example`. Without them the app runs, and those fea
 configured. Deployed on Vercel, `vercel.json` schedules the job once a day (the Hobby plan limit); on a
 plan that allows it, run it every 10 minutes.
 
+## Production
+
+Security headers and the Content Security Policy are set in `next.config.ts`
+(`src/lib/security/headers.ts`); sign-in and video tokens are rate-limited; `/api/health`
+serves uptime monitors. Before launching, follow `docs/LAUNCH-CHECKLIST.md`; when
+something goes wrong, `docs/RUNBOOK.md`. `scripts/restore-drill.sh` practises a restore,
+and `scripts/check-advisors.sh` runs Supabase's security advisors (also in CI).
+
 ## Scripts
 
 | Command | What it does |

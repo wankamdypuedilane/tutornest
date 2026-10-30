@@ -18,7 +18,7 @@ const colourTokens = [
   { name: "muted", className: "bg-muted text-muted-foreground" },
   { name: "success", className: "bg-success text-success-foreground" },
   { name: "warning", className: "bg-warning text-warning-foreground" },
-  { name: "destructive", className: "bg-destructive text-white" },
+  { name: "destructive", className: "bg-destructive text-white dark:bg-destructive/60" },
 ];
 
 // Internal page that shows every token and core component in one place.

@@ -17,7 +17,7 @@ export default function SignInPage({ searchParams }: PageProps<"/sign-in">) {
       footer={
         <>
           New here?{" "}
-          <Link href="/sign-up" className="text-primary hover:underline">
+          <Link href="/sign-up" className="text-primary underline underline-offset-4 hover:no-underline">
             Create an account
           </Link>
         </>

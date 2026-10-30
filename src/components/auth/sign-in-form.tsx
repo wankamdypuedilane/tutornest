@@ -32,7 +32,7 @@ export function SignInForm({ next }: { next: string }) {
         errors={state.fieldErrors?.password}
       />
       <div className="flex items-center justify-between">
-        <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+        <Link href="/forgot-password" className="text-sm text-primary underline underline-offset-4 hover:no-underline">
           Forgot your password?
         </Link>
         <Button type="submit" disabled={pending}>

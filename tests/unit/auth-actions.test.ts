@@ -15,6 +15,14 @@ const redirect = vi.fn((url: string) => {
 });
 vi.mock("next/navigation", () => ({ redirect: (url: string) => redirect(url), notFound: vi.fn() }));
 
+// Requests come from a fixed address; the rate limiter answers what each test decides.
+vi.mock("next/headers", () => ({ headers: async () => new Headers({ "x-forwarded-for": "203.0.113.7" }) }));
+const rateLimit = vi.fn<(limit: { key: string }) => Promise<boolean>>(async () => true);
+vi.mock("@/lib/security/rate-limit", () => ({
+  rateLimit: (limit: { key: string }) => rateLimit(limit),
+  hashKey: (value: string) => `hash(${value})`,
+}));
+
 const { signIn, signUp, requestPasswordReset, signInWithGoogle } = await import(
   "@/app/(auth)/actions"
 );
@@ -39,6 +47,18 @@ describe("signIn", () => {
     auth.signInWithPassword.mockResolvedValue({ error: { message: "Invalid login credentials" } });
     const state = await signIn({ status: "idle" }, form({ email: "a@example.com", password: "x" }));
     expect(state.message).toBe("Invalid e-mail or password.");
+  });
+
+  it("refuses without calling Supabase after too many attempts, per address and per account", async () => {
+    rateLimit.mockImplementation(async ({ key }) => !key.startsWith("sign-in:account:"));
+    const state = await signIn({ status: "idle" }, form({ email: "a@example.com", password: "x" }));
+    expect(state.message).toBe("Too many attempts. Please wait a few minutes and try again.");
+    expect(auth.signInWithPassword).not.toHaveBeenCalled();
+    expect(rateLimit.mock.calls.map(([limit]) => limit.key)).toEqual([
+      "sign-in:ip:203.0.113.7",
+      "sign-in:account:hash(a@example.com)",
+    ]);
+    rateLimit.mockImplementation(async () => true);
   });
 
   it("redirects to a safe next path after success", async () => {

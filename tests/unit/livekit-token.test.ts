@@ -16,6 +16,9 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({ from: () => ({ select: () => ({ eq: () => ({ maybeSingle }) }) }) }),
 }));
 
+let allowed = true;
+vi.mock("@/lib/security/rate-limit", () => ({ rateLimit: async () => allowed }));
+
 const { POST } = await import("@/app/api/sessions/[bookingId]/token/route");
 
 const BOOKING = "a8b2c4d6-1e3f-4a5b-8c7d-9e0f1a2b3c4d";
@@ -81,5 +84,14 @@ describe("POST /api/sessions/[bookingId]/token", () => {
     env.LIVEKIT_API_SECRET = undefined;
     maybeSingle.mockResolvedValue({ data: bookingAt(5) });
     expect((await call()).status).toBe(503);
+  });
+
+  it("answers 429 with Retry-After when a user asks too often", async () => {
+    allowed = false;
+    const response = await call();
+    allowed = true;
+    expect(response.status).toBe(429);
+    expect(response.headers.get("Retry-After")).toBe("60");
+    expect(maybeSingle).not.toHaveBeenCalled();
   });
 });

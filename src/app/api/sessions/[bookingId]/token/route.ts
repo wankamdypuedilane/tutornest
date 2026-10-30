@@ -4,6 +4,7 @@ import { getCurrentUser } from "@/lib/auth/current-user";
 import { serverEnv } from "@/lib/env.server";
 import { createSessionToken } from "@/lib/livekit/token";
 import { canJoin } from "@/lib/scheduling/slots";
+import { rateLimit } from "@/lib/security/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
 const reply = (body: object, status: number) =>
@@ -13,6 +14,13 @@ const reply = (body: object, status: number) =>
 export async function POST(_request: Request, ctx: RouteContext<"/api/sessions/[bookingId]/token">) {
   const user = await getCurrentUser();
   if (!user) return reply({ error: "Sign in to join this session." }, 401);
+  // A token per click is plenty; a script asking in a loop is not a user.
+  if (!(await rateLimit({ key: `livekit-token:${user.id}`, limit: 20, windowSeconds: 60 }))) {
+    return NextResponse.json(
+      { error: "Too many requests. Please wait a minute." },
+      { status: 429, headers: { "Cache-Control": "no-store", "Retry-After": "60" } },
+    );
+  }
   const { bookingId } = await ctx.params;
   if (!z.uuid().safeParse(bookingId).success) return reply({ error: "Session not found." }, 404);
 

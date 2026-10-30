@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
@@ -12,6 +13,8 @@ import {
 import { safeNextPath } from "@/lib/auth/redirect";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { serverEnv } from "@/lib/env.server";
+import { clientIp } from "@/lib/security/client-ip";
+import { hashKey, rateLimit } from "@/lib/security/rate-limit";
 import { createClient } from "@/lib/supabase/server";
 
 function invalid(error: z.ZodError): FormState {
@@ -49,6 +52,17 @@ export async function signUp(_prev: FormState, formData: FormData): Promise<Form
 export async function signIn(_prev: FormState, formData: FormData): Promise<FormState> {
   const parsed = signInSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return invalid(parsed.error);
+
+  // Slow down password guessing: per address (many accounts) and per account
+  // (many addresses). Same message in both cases, whether or not the account exists.
+  const ip = clientIp(await headers());
+  const [byIp, byAccount] = await Promise.all([
+    rateLimit({ key: `sign-in:ip:${ip}`, limit: 20, windowSeconds: 600 }),
+    rateLimit({ key: `sign-in:account:${hashKey(parsed.data.email)}`, limit: 5, windowSeconds: 600 }),
+  ]);
+  if (!byIp || !byAccount) {
+    return { status: "error", message: "Too many attempts. Please wait a few minutes and try again." };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword(parsed.data);

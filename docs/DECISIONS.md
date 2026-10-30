@@ -69,3 +69,22 @@ future contributors (human or AI) understand why the code looks the way it does.
   escaped.
 - Conversions are measured with Vercel Web Analytics (no cookies) and a `cta_click` custom event per placement.
 - The header hides secondary links below 640 px: an end-to-end test checks that nothing overflows at 375 px.
+
+## 2026-11-11 Security, quality and production (chapter 19)
+
+- **CSP without nonces.** Nonces require dynamic rendering of every page, which would remove
+  the prerendered static shells of Cache Components. The policy keeps `'unsafe-inline'` for
+  scripts (Next.js and next-themes inline scripts) and restricts everything else: connections
+  only to our site, Supabase and LiveKit; no plugins; no framing; forms to us and Supabase.
+  XSS defence relies first on React's escaping and on never inserting unescaped HTML.
+- **Rate limits in PostgreSQL** (`hit_rate_limit`): serverless instances share no memory. Sign-in:
+  20 per 10 minutes per IP and 5 per account (hashed e-mail); LiveKit tokens: 20 per minute per user.
+  The limiter fails open (`onError: "allow"`) for sign-in, where a database outage breaks sign-in anyway.
+- **Client IP** from `x-forwarded-for`, which Vercel sets and overwrites. Re-check behind another proxy.
+- **Structured logs** with redaction (`src/lib/log.ts`) and `onRequestError` in `src/instrumentation.ts`:
+  path without query string, digest shown to users so support can find the line.
+- **Accepted risk**: `npm audit` reports 4 low-severity issues (deepmerge prototype pollution via
+  html-to-text via @react-email/render), no fix available. Our templates merge no untrusted objects.
+  CI fails from "high" up. Review monthly.
+- **Health check** `/api/health` for uptime monitors; reveals status, database state and commit only.
+- **Supabase advisors in CI** (`scripts/check-advisors.sh`) on a fresh schema, failing on warnings.
