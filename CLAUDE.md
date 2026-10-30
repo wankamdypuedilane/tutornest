@@ -32,6 +32,9 @@ Read docs/PRD.md for the product requirements before planning a feature.
   outbox worker send it with an idempotency key. Templates live in `src/emails/`.
 - Security headers live in `src/lib/security/headers.ts`; a new external service must be added to the
   CSP there, with a test. Never use dangerouslySetInnerHTML with user content.
+- Module boundaries are in docs/ARCHITECTURE.md and enforced by eslint.config.mjs: src/lib never
+  imports src/app or src/components; only the listed server modules use the secret-key client.
+- Every new query that grows with data gets an index in a migration, measured with EXPLAIN ANALYZE.
 - Rate-limit endpoints that cost money or guard secrets (`src/lib/security/rate-limit.ts`).
 - Log with `log()` from `src/lib/log.ts`; never log tokens, cookies, passwords or e-mail addresses.
 - Do not modify tests to make them pass unless the requirement changed; say so explicitly if you do.
