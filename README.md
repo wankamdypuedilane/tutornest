@@ -4,8 +4,9 @@ Mentoring platform for **Northlight Learning** (a fictional organization):
 learners find mentors, book one-to-one video sessions and track their goals.
 
 This is the companion project of the book *Mastering AI-Assisted Full-Stack
-Application Development* by WANKAM Dypue Dilane Junior (2026). Each Git tag
-`chNN-end` matches the state of the code at the end of chapter NN.
+Application Development* by WANKAM Dypue Dilane Junior (2026). Each milestone
+branch `chNN-end` matches the state of the code at the end of chapter NN
+(`git switch --detach ch15-end`).
 
 ## Stack
 
@@ -24,7 +25,8 @@ cp .env.example .env.local   # then fill in your own values
 npm run dev                  # http://localhost:3000
 ```
 
-The home page works without any configuration. Features that use Supabase
+The home page works without any configuration, and so do the design previews
+`/design` and `/design/booking` (booking with sample data, in your time zone). Features that use Supabase
 need a Supabase project (see chapter 6 of the book) or the local stack
 (`npx supabase start`, requires Docker).
 

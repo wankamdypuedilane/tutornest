@@ -12,7 +12,7 @@ export type MentorSummary = {
   avatar_path: string | null;
 };
 
-export type MentorProfile = MentorSummary & { bio: string; timezone: string };
+export type MentorProfile = MentorSummary & { id: string; bio: string; timezone: string };
 
 /** Published mentors matching the filters. Cached: identical for every visitor. */
 export async function getPublishedMentors(filters: DirectoryFilters): Promise<MentorSummary[]> {
@@ -44,7 +44,7 @@ export async function getMentorBySlug(slug: string): Promise<MentorProfile | nul
   if (!hasSupabaseEnv) return null;
   const { data } = await createPublicClient()
     .from("mentor_profiles")
-    .select("slug, display_name, headline, bio, skills, languages, timezone, avatar_path")
+    .select("id, slug, display_name, headline, bio, skills, languages, timezone, avatar_path")
     .eq("slug", slug)
     .eq("is_published", true)
     .maybeSingle<MentorProfile>();

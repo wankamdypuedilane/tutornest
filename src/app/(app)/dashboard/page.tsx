@@ -32,11 +32,21 @@ async function Welcome() {
           <Badge variant="warning">Mentor application under review</Badge>
         )}
       </div>
-      {profile?.mentor_status === "approved" && (
-        <Link href="/mentor/profile" className="inline-block text-primary underline underline-offset-4">
-          Edit your public mentor profile
+      <nav aria-label="Your space" className="flex flex-wrap gap-4">
+        <Link href="/sessions" className="text-primary underline underline-offset-4">
+          Your sessions
         </Link>
-      )}
+        {profile?.mentor_status === "approved" && (
+          <>
+            <Link href="/mentor/profile" className="text-primary underline underline-offset-4">
+              Edit your public mentor profile
+            </Link>
+            <Link href="/mentor/availability" className="text-primary underline underline-offset-4">
+              Set your availability
+            </Link>
+          </>
+        )}
+      </nav>
     </section>
   );
 }

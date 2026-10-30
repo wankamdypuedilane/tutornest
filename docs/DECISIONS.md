@@ -31,3 +31,20 @@ future contributors (human or AI) understand why the code looks the way it does.
 - File type is detected from the bytes, never from the name or the browser-provided type. SVG is refused.
 - A new object name per upload (no overwrite) so CDN and browser caches never serve a stale photo.
 - Uploads go through a Server Action (limit raised to 3 MB); direct browser uploads are an option if files grow.
+
+## 2026-11-08: Times are instants; time zones only at the edges
+- Bookings store `starts_at` / `ends_at` as `timestamptz`. Availability rules are weekly local times
+  interpreted in `mentor_profiles.timezone`; slots are computed in pure functions with `@date-fns/tz`
+  and shown in the viewer's browser time zone.
+- PostgreSQL re-checks a booking against the rules in the mentor's zone (`private.fits_availability`).
+
+## 2026-11-08: Double bookings are impossible in the database
+- Exclusion constraints (btree_gist) on `(mentor_id, tstzrange(starts_at, ends_at, '[)'))` and on the
+  learner, for confirmed bookings. The Server Action never checks availability first: it inserts and
+  translates `23P01` into a message. Time-dependent rules (notice, 24-hour cancellation) live in policies.
+- The mentor sees the learner's name through `bookings.learner_name`, copied by a trigger; profiles stay private.
+
+## 2026-11-08: One LiveKit room per booking, tokens from a Route Handler
+- `POST /api/sessions/[bookingId]/token` checks the user, the booking (RLS) and the join window
+  (10 minutes before to 15 minutes after), then signs a token for room `session-<bookingId>` only,
+  valid until the window closes. The API secret never leaves the server.

@@ -25,5 +25,8 @@ Read docs/PRD.md for the product requirements before planning a feature.
 - Never read, print or commit `.env*` files except `.env.example`. Never hard-code keys.
 - Use semantic design tokens (`bg-primary`, `text-muted-foreground`), never raw colours.
 - Validate all user input on the server with zod.
+- Store times as timestamptz instants; convert to a time zone only to compute or display. Scheduling
+  rules live in pure functions in `src/lib/scheduling/` with tests (including daylight saving time).
+- Never check availability and then insert: insert and let the exclusion constraint decide.
 - Do not modify tests to make them pass unless the requirement changed; say so explicitly if you do.
 - Keep changes small and focused; propose a plan first for anything touching more than three files.
