@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
+import { GoogleButton } from "@/components/auth/google-button";
 import { SignInForm } from "@/components/auth/sign-in-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { safeNextPath } from "@/lib/auth/redirect";
@@ -36,5 +37,12 @@ async function SignInFormWithNext({
   searchParams: PageProps<"/sign-in">["searchParams"];
 }) {
   const { next } = await searchParams;
-  return <SignInForm next={safeNextPath(typeof next === "string" ? next : undefined)} />;
+  const safeNext = safeNextPath(typeof next === "string" ? next : undefined);
+  return (
+    <div className="space-y-6">
+      <GoogleButton next={safeNext} />
+      <p className="text-center text-xs text-muted-foreground uppercase">or with your e-mail</p>
+      <SignInForm next={safeNext} />
+    </div>
+  );
 }

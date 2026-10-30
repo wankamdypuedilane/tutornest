@@ -5,6 +5,7 @@ const auth = {
   signInWithPassword: vi.fn(),
   signUp: vi.fn(),
   resetPasswordForEmail: vi.fn(),
+  signInWithOAuth: vi.fn(),
 };
 vi.mock("@/lib/supabase/server", () => ({ createClient: async () => ({ auth }) }));
 
@@ -14,7 +15,9 @@ const redirect = vi.fn((url: string) => {
 });
 vi.mock("next/navigation", () => ({ redirect: (url: string) => redirect(url), notFound: vi.fn() }));
 
-const { signIn, signUp, requestPasswordReset } = await import("@/app/(auth)/actions");
+const { signIn, signUp, requestPasswordReset, signInWithGoogle } = await import(
+  "@/app/(auth)/actions"
+);
 
 function form(values: Record<string, string>) {
   const data = new FormData();
@@ -75,6 +78,22 @@ describe("requestPasswordReset", () => {
     expect(state).toEqual({
       status: "success",
       message: "If an account exists for this address, we have sent a reset link.",
+    });
+  });
+});
+
+describe("signInWithGoogle", () => {
+  it("asks Supabase for a Google URL with a safe callback, then redirects to it", async () => {
+    auth.signInWithOAuth.mockResolvedValue({
+      data: { url: "https://accounts.google.com/o/oauth2/v2/auth?client_id=demo" },
+      error: null,
+    });
+    await expect(signInWithGoogle(form({ next: "https://evil.example" }))).rejects.toThrow(
+      "REDIRECT:https://accounts.google.com/o/oauth2/v2/auth?client_id=demo",
+    );
+    expect(auth.signInWithOAuth).toHaveBeenCalledWith({
+      provider: "google",
+      options: { redirectTo: "http://localhost:3000/auth/callback?next=%2Fdashboard" },
     });
   });
 });

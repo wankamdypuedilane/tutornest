@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AuthCard } from "@/components/auth/auth-card";
+import { GoogleButton } from "@/components/auth/google-button";
 import { SignUpForm } from "@/components/auth/sign-up-form";
 
 export const metadata: Metadata = { title: "Create an account" };
@@ -19,6 +20,8 @@ export default function SignUpPage() {
         </>
       }
     >
+      <GoogleButton />
+      <p className="text-center text-xs text-muted-foreground uppercase">or with your e-mail</p>
       <SignUpForm />
     </AuthCard>
   );

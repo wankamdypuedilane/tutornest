@@ -59,6 +59,21 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
   redirect(safeNextPath(formData.get("next")?.toString()));
 }
 
+export async function signInWithGoogle(formData: FormData): Promise<void> {
+  const next = safeNextPath(formData.get("next")?.toString());
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      // Google sends the user back to Supabase, which then redirects here with a code.
+      redirectTo: `${serverEnv.NEXT_PUBLIC_SITE_URL}/auth/callback?next=${encodeURIComponent(next)}`,
+    },
+  });
+  if (error || !data.url) redirect("/auth/error?reason=oauth");
+  // The PKCE code verifier is now stored in a cookie; send the browser to Google.
+  redirect(data.url);
+}
+
 export async function signOut(): Promise<void> {
   const supabase = await createClient();
   await supabase.auth.signOut();

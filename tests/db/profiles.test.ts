@@ -5,11 +5,14 @@ import { asAnon, asUser, connect, createUser } from "./helpers";
 let db: Client;
 let ines: string;
 let marc: string;
+let amina: string;
 
 beforeAll(async () => {
   db = await connect();
   ines = await createUser(db, "ines@example.com", { full_name: "Inès Martin" });
   marc = await createUser(db, "marc@example.com", { full_name: "Marc Leroy", intent: "mentor" });
+  // Google identity data uses `name` rather than `full_name`.
+  amina = await createUser(db, "amina@example.com", { name: "Amina Diallo", picture: "https://example.com/a.png" });
 });
 
 afterAll(async () => {
@@ -31,6 +34,11 @@ describe("profiles", () => {
       [marc],
     );
     expect(rows[0]).toEqual({ role: "learner", mentor_status: "pending" });
+  });
+
+  it("reads the name sent by Google sign-in", async () => {
+    const { rows } = await db.query("select full_name from public.profiles where id = $1", [amina]);
+    expect(rows[0]).toEqual({ full_name: "Amina Diallo" });
   });
 
   it("lets a user read only their own profile", async () => {
